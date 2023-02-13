@@ -81,6 +81,15 @@ class Player extends SpriteGroupComponent<PlayerState>
     _hAxisInput = 0;
 
     // Add a Player to the game: Add keypress logic
+    if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
+      moveLeft();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
+      moveRight();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
+      jump();
+    }
 
     return true;
   }
@@ -97,6 +106,11 @@ class Player extends SpriteGroupComponent<PlayerState>
     // Add a Player to the game: Add logic for moving right
     current = PlayerState.right;
     _hAxisInput += movingRightInput;
+  }
+
+  void jump() {
+    _hAxisInput = 0;
+    current = PlayerState.center;
   }
 
   void resetDirection() {
