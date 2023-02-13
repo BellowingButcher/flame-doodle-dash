@@ -9,7 +9,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
 
 import '../doodle_dash.dart';
-// Core gameplay: Import sprites.dart
 import 'sprites.dart';
 
 enum PlayerState {
@@ -41,13 +40,12 @@ class Player extends SpriteGroupComponent<PlayerState>
   bool get isMovingDown => _velocity.y > 0;
   Character character;
   double jumpSpeed;
-  // Core gameplay: Add _gravity property
   final double _gravity = 9;
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Core gameplay: Add circle hitbox to Dash
     await add(CircleHitbox());
 
     await _loadCharacterSprites();
@@ -56,27 +54,23 @@ class Player extends SpriteGroupComponent<PlayerState>
 
   @override
   void update(double dt) {
-    // Add a Player to the game: Add game state check
     if (gameRef.gameManager.isIntro || gameRef.gameManager.isGameOver) return;
 
-    // Add a Player to the game: Add calcualtion for Dash's horizontal velocity
     _velocity.x = _hAxisInput * jumpSpeed;
 
     final double dashHorizontalCenter = size.x / 2;
 
-    // Add a Player to the game: Add infinite side boundaries logic
     if (position.x < dashHorizontalCenter) {
       position.x = gameRef.size.x - (dashHorizontalCenter);
     }
-    // Add a Player to the game: Calculate Dash's current position based on
-    // her velocity over elapsed time since last update cycle
     if (position.x > gameRef.size.x - (dashHorizontalCenter)) {
       position.x = dashHorizontalCenter;
     }
-    // Core gameplay: Add gravity
+
     _velocity.y += _gravity;
 
     position += _velocity * dt;
+
     super.update(dt);
   }
 
@@ -84,15 +78,17 @@ class Player extends SpriteGroupComponent<PlayerState>
   bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     _hAxisInput = 0;
 
-    // Add a Player to the game: Add keypress logic
     if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
       moveLeft();
     }
+
     if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
       moveRight();
     }
+
+    // During development, its useful to "cheat"
     if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
-      jump();
+      // jump();
     }
 
     return true;
@@ -100,15 +96,19 @@ class Player extends SpriteGroupComponent<PlayerState>
 
   void moveLeft() {
     _hAxisInput = 0;
-    // Add a Player to the game: Add logic for moving left
+
+    // Powerups: Check is wearing hat (left)
     current = PlayerState.left;
+
     _hAxisInput += movingLeftInput;
   }
 
   void moveRight() {
     _hAxisInput = 0;
-    // Add a Player to the game: Add logic for moving right
+
+    // Powerups: Check is wearing hat (right)
     current = PlayerState.right;
+
     _hAxisInput += movingRightInput;
   }
 
@@ -122,10 +122,11 @@ class Player extends SpriteGroupComponent<PlayerState>
 
   // Powerups: Add isWearingHat getter
 
-  // Core gameplay: Override onCollision callback
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
+    // Losing the game: Add collision logic for EnemyPlatform
+
     bool isCollidingVertically =
         (intersectionPoints.first.y - intersectionPoints.last.y).abs() < 5;
 
@@ -135,16 +136,17 @@ class Player extends SpriteGroupComponent<PlayerState>
         jump();
         return;
       }
+      // More on platforms: Check SpringBoard platform
+      // More on platforms: Check BrokenPlatform
     }
+
+    // Powerups: Collision logic for Rocket
+    // Powerups: Collision logic for NooglerHat
   }
 
-  // Core gameplay: Add a jump method
   void jump({double? specialJumpSpeed}) {
     _velocity.y = specialJumpSpeed != null ? -specialJumpSpeed : -jumpSpeed;
   }
-  // void jump ({double? specialJumpSpeed}) {
-  //   _velocity.y = specialJumpSpeed != null ? -specialJumpSpeed : -jumpSpeed;
-  // }
 
   void _removePowerupAfterTime(int ms) {
     Future.delayed(Duration(milliseconds: ms), () {
